@@ -1,0 +1,21 @@
+api:
+    # This may be an IP or a domain name.
+    url: "https://example.xapi.our-space.xyz/orizuru"
+    # This may be provided by another service, it's used to identify the server.
+    uniqueId: "named-server"
+    # This is required to authenticate with the API.
+    password: "password"
+    # This enables SSL for the API, remember that if it is disabled
+auth:
+    # Enable or disable the authentication system (via API)
+    enabled: true
+    # Messages that are sent to the user when they are Authenticated.
+    messages:
+        # The message that is sent to the user when they are kicked.
+        failureMessage: "Authentication failed"
+        # This is the message that is sent to the user when they are Authenticated.
+        ## Some template strings are available:
+        ## {{playerUsername}}} - the username of the user
+        ## {{playerName}} - Name received from the API (Falls back to username if not provided)
+        ## {{playerIdentifier}} - Identifier received from the API
+        successMessage: "Welcome, {{playerName}}!"

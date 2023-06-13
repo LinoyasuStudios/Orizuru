@@ -1,0 +1,15 @@
+name: Orizuru
+description: Web-based communication plugin for Minecraft servers using events.
+version: 1.0.0
+author: GaryCraft
+main: xyz.ourspace.xdev.Orizuru
+api-version: "1.20"
+depend: [Vault]
+commands:
+  orizuru:
+    description: Gets Info about the plugin
+    usage: /<command>
+  .ping:
+    description: Get your ping
+    usage: /<command> <uuid>
+
