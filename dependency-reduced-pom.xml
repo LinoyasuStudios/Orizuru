@@ -104,6 +104,10 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <repository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -161,7 +165,7 @@
   <distributionManagement>
     <repository>
       <id>github</id>
-      <url>https://maven.pkg.github.com/GaryCraft/NetMon-Auth</url>
+      <url>https://maven.pkg.github.com/GaryCraft/Orizuru</url>
     </repository>
   </distributionManagement>
   <properties>
