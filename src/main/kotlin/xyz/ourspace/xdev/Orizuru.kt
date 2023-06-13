@@ -84,7 +84,12 @@ class Orizuru : JavaPlugin() {
 			server.port,
 			description.version,
 		)
-		connection.post("Server Shutdown", "Log", serverInfo)
+		try {
+			connection.post("Server Shutdown", "Log", serverInfo)
+		}catch (e: IOException) {
+			consoleLogWarning("Failed to send shutdown webhook")
+		}
+
 	}
 
 	companion object {
