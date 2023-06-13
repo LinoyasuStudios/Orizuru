@@ -76,6 +76,13 @@ class SelfUpdate {
 			downloadUpdate()
 			Logger.consoleLog("Update downloaded, please restart the server to apply the update")
 		}
+		else {
+			Logger.consoleLog("""
+				|No updates found
+				|Current version: $currentVersion
+				|Latest version: $latestVersion
+			""".trimIndent())
+		}
 	}
 }
 

@@ -68,7 +68,7 @@ class Orizuru : JavaPlugin() {
 			}
 		}
 
-		server.getPluginCommand("netmonauth")!!.setExecutor(InfoCommand(this))
+		server.getPluginCommand("orizuru")!!.setExecutor(InfoCommand(this))
 		memoryHolder.startCleanTask()
 	}
 

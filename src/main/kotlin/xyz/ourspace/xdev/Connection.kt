@@ -48,7 +48,7 @@ class APIConnection {
 				doInput = true
 				requestMethod = "POST"
 				connectTimeout = 5 * 1000;
-				setRequestProperty("User-Agent", "NetMonAuth Plugin")
+				setRequestProperty("User-Agent", "Orizuru Plugin")
 				setRequestProperty("Content-Type", "application/json")
 				setRequestProperty("Content-Length", json.length.toString())
 				setRequestProperty("Authorization", password)
@@ -82,7 +82,7 @@ class APIConnection {
 			doOutput = true
 			doInput = true
 			connectTimeout = 5 * 1000;
-			setRequestProperty("User-Agent", "NetMonAuth Plugin")
+			setRequestProperty("User-Agent", "Orizuru Plugin")
 			setRequestProperty("Content-Type", "application/json")
 			setRequestProperty("Content-Length", json.length.toString())
 			setRequestProperty("Authorization", password)
@@ -121,7 +121,7 @@ class APIConnection {
 		connection.apply {
 			doInput = true
 			connectTimeout = 5 * 1000;
-			setRequestProperty("User-Agent", "NetMonAuth Plugin")
+			setRequestProperty("User-Agent", "Orizuru Plugin")
 			setRequestProperty("Content-Type", "application/json")
 			setRequestProperty("Content-Length", json.length.toString())
 			setRequestProperty("Authorization", password)

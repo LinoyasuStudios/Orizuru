@@ -39,7 +39,7 @@ class AuthUtility(private val plugin: Orizuru) {
 		if(perms == null){
 			Logger.consoleLogError("Vault Permissions not initialized while verifying player")
 		}
-		val bypass = perms?.playerHas(null, player, "netmonauth.auth.bypass")
+		val bypass = perms?.playerHas(null, player, "orizuru.auth.bypass")
 		//Logger.consoleLog("Player ${player.name} bypass is $bypass")
 		if (bypass == true) {
 			Logger.consoleLog("Player ${player.name} bypassed authentication")

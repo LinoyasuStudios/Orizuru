@@ -4,7 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 
 object Logger {
-	private val PREFIX: String = "${ChatColor.LIGHT_PURPLE}[NetMonAuth]§r"
+	private val PREFIX: String = "${ChatColor.LIGHT_PURPLE}[Orizuru]§r"
 	fun consoleLog(message:String){
 		Bukkit.getConsoleSender().sendMessage("$PREFIX $message")
 	}
@@ -18,6 +18,6 @@ object Logger {
 		Bukkit.getLogger().severe("$PREFIX §c${exception.message}")
 	}
 	fun consoleLogError(message:String){
-		Bukkit.getLogger().severe("[NetMonAuth] $message")
+		Bukkit.getLogger().severe("[Orizuru] $message")
 	}
 }

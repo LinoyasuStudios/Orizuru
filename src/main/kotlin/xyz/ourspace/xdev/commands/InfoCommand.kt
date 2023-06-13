@@ -13,7 +13,7 @@ class InfoCommand(private val plugin: Orizuru) : CommandExecutor {
 			val branding = ChatColor.LIGHT_PURPLE.toString() + "Space" + ChatColor.AQUA + "Project"
 			sender.sendMessage(
 					"""
-	${ChatColor.LIGHT_PURPLE}| NetMonAuth Plugin
+	${ChatColor.LIGHT_PURPLE}| Orizuru Plugin
 	| Version: ${ChatColor.AQUA}${plugin.description.version}${ChatColor.GREEN}
 	| With Resources from $branding${ChatColor.YELLOW}
 	""".trimIndent()
@@ -21,7 +21,7 @@ class InfoCommand(private val plugin: Orizuru) : CommandExecutor {
 		} else {
 			plugin.logger.info(
 					"""
-	|NetMonAuth Plugin
+	|Orizuru Plugin
 	|Version: ${plugin.description.version}
 	|Plugin Correctly Loaded
 	""".trimIndent()
