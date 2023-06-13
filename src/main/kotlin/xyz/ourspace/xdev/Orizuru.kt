@@ -12,6 +12,7 @@ import xyz.ourspace.xdev.utils.AuthUtility
 import xyz.ourspace.xdev.utils.ConfigValidator
 import xyz.ourspace.xdev.utils.Logger.consoleLogWarning
 import xyz.ourspace.xdev.utils.MemoryHolder
+import xyz.ourspace.xdev.utils.SelfUpdate
 import java.io.File
 import java.io.IOException
 
@@ -70,6 +71,8 @@ class Orizuru : JavaPlugin() {
 
 		server.getPluginCommand("orizuru")!!.setExecutor(InfoCommand(this))
 		memoryHolder.startCleanTask()
+
+		SelfUpdate().onPluginLoad()
 	}
 
 	override fun onDisable() {
