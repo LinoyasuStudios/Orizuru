@@ -9,7 +9,7 @@ import java.io.File
 class SelfUpdate {
 	// This class lets us get the latest version of the plugin from GitHub
 	private val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+)(?:-(\w+))?""")
-	private val filenameRegex = Regex("""Orizuru-(\d+)\.(\d+)\.(\d+)(?:-(\w+))?.jar""")
+	private val filenameRegex = Regex("""orizuru-(\d+)\.(\d+)\.(\d+)(?:-(\w+))?.jar""")
 	private val gitRepo = "GaryCraft/Orizuru"
 	private fun getCurrentVersion(): Version {
 		val v = Orizuru.instance.description.version
