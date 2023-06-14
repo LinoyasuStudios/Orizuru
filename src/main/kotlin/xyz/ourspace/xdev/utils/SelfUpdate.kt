@@ -1,6 +1,7 @@
 package xyz.ourspace.xdev.utils
 
-import khttp.get
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.jackson.responseObject
 import xyz.ourspace.xdev.Orizuru
 import java.io.File
 
@@ -23,44 +24,65 @@ class SelfUpdate {
 	private fun getLatestVersion(): Version {
 		// Fetch GitHub API for latest version
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
-		val response = get(url)
-		// Error out if the version is not in the correct format
-		if (!response.jsonObject.has("tag_name")) {
-			throw Exception("Version is not in the correct format")
+		var version = Version(0, 0, 0, "")
+		Fuel.get(url).responseObject<GitHubAPIRelease> {
+			request, response, result ->
+			val (data, error) = result
+			if (error != null) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
+			if (data == null) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
+			val v = data.tag_name
+			// Error out if the version is not in the correct format
+			if (!versionRegex.matches(v)) {
+				throw Exception("Version is not in the correct format")
+			}
+			val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
+			version = Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
 		}
-		val v = response.jsonObject.getString("tag_name")
-		if (!versionRegex.matches(v)) {
-			throw Exception("Version is not in the correct format")
+		if (version == Version(0, 0, 0, "")) {
+			throw Exception("Failed to fetch latest version from GitHub API")
 		}
-		val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
-		return Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+		return version
 	}
 
 	private fun getLatestVersionUrl(): String {
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
-		val response = get(url)
-		// Error out if the version is not in the correct format
-		if (!response.jsonObject.has("assets")) {
-			throw Exception("Version is not in the correct format")
-		}
-		val assets = response.jsonObject.getJSONArray("assets")
-		for (i in 0 until assets.length()) {
-			val asset = assets.getJSONObject(i)
-			// Match filename to jar file
-			if (asset.getString("name")
-							.matches(filenameRegex)) {
-				return asset.getString("browser_download_url")
+		var version: Version;
+		var downloadUrl = "";
+		val response = Fuel.get(url).responseObject<GitHubAPIRelease> {
+			request, response, result ->
+			val (data, error) = result
+			if (error != null) {
+				throw Exception("Failed to fetch latest version from GitHub API")
 			}
+			if (data == null) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
+			val v = data.tag_name
+			// Error out if the version is not in the correct format
+			if (!versionRegex.matches(v)) {
+				throw Exception("Version is not in the correct format")
+			}
+			val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
+			version = Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+			downloadUrl = data.assets.firstOrNull { it.name.matches(filenameRegex) }?.browser_download_url ?: ""
 		}
-		throw Exception("Version is unavailable")
+		if (downloadUrl.isNotEmpty()) {
+			throw Exception("Failed to fetch latest version from GitHub API")
+		}
+		return downloadUrl
 	}
+
 	private fun downloadUpdate() {
 		// Get latest version url
 		val url = getLatestVersionUrl()
 		// Download file
-		val response = get(url)
+		val response = Fuel.download(url).response()
 		val file = File("plugins/orizuru.jar")
-		file.writeBytes(response.content)
+		file.writeBytes(response.third.get())
 	}
 
 	fun onPluginLoad() {
@@ -75,8 +97,7 @@ class SelfUpdate {
 			// Download update
 			downloadUpdate()
 			Logger.consoleLog("Update downloaded, please restart the server to apply the update")
-		}
-		else {
+		} else {
 			Logger.consoleLog("""
 				|No updates found
 				|Current version: $currentVersion
@@ -113,3 +134,6 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val tag: Stri
 		return 0
 	}
 }
+
+data class GitHubAPIAsset(var name: String = "", var browser_download_url: String = "")
+data class GitHubAPIRelease(var name: String = "", var tag_name: String = "", var assets: List<GitHubAPIAsset> = listOf())
