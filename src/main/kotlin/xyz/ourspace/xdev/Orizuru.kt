@@ -72,7 +72,7 @@ class Orizuru : JavaPlugin() {
 		server.getPluginCommand("orizuru")!!.setExecutor(InfoCommand(this))
 		memoryHolder.startCleanTask()
 
-		if(config.getBoolean("selfUpdate")) {
+		if(config.getBoolean("selfUpdate.enabled")) {
 			try {
 				SelfUpdate().onPluginLoad()
 			} catch (e: IOException) {

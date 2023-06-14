@@ -20,8 +20,7 @@ class SelfUpdate {
 		// Fetch GitHub API for latest version
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
 		var version = Version(0, 0, 0, "")
-		Fuel.get(url).responseObject<GitHubAPIRelease> {
-			request, response, result ->
+		Fuel.get(url).responseObject<GitHubAPIRelease> { request, response, result ->
 			val (data, error) = result
 			if (error != null) {
 				throw Exception("Failed to fetch latest version from GitHub API")
@@ -42,8 +41,7 @@ class SelfUpdate {
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
 		var version: Version;
 		var downloadUrl = "";
-		val response = Fuel.get(url).responseObject<GitHubAPIRelease> {
-			request, response, result ->
+		val response = Fuel.get(url).responseObject<GitHubAPIRelease> { request, response, result ->
 			val (data, error) = result
 			if (error != null) {
 				throw Exception("Failed to fetch latest version from GitHub API")
@@ -119,6 +117,7 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val tag: Stri
 		}
 		return 0
 	}
+
 	fun isEquivalent(other: Version): Boolean {
 		return major == other.major && minor == other.minor && patch == other.patch
 	}
@@ -136,5 +135,29 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val tag: Stri
 	}
 }
 
-data class GitHubAPIAsset(var name: String = "", var browser_download_url: String = "")
-data class GitHubAPIRelease(var name: String = "", var tag_name: String = "", var assets: List<GitHubAPIAsset> = listOf())
+data class GitHubAPIAsset(
+		var name: String = "",
+		var browser_download_url: String = "",
+		var content_type: String = "",
+		var size: Int = 0,
+		var created_at: String = "",
+		var updated_at: String = "",
+		var label: String = "",
+		var state: String = "",
+		var download_count: Int = 0,
+)
+
+data class GitHubAPIRelease(
+		var url: String = "",
+		var html_url: String = "",
+		var assets_url: String = "",
+		var upload_url: String = "",
+		var id: Int = 0,
+		var tag_name: String = "",
+		var assets: List<GitHubAPIAsset> = listOf(),
+		var draft: Boolean = false,
+		var prerelease: Boolean = false,
+		var created_at: String = "",
+		var published_at: String = "",
+		var body: String = "",
+)

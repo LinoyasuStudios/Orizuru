@@ -1,4 +1,4 @@
-autoUpdate:
+selfUpdate:
     # Enable or disable the auto update system.
     enabled: true
 api:
