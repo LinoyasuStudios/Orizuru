@@ -5,6 +5,11 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+        release:
+            description: 'Release Version'
+            required: true
+            default: '1.0.0'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -15,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ inputs.release }}
 
       - name: Set up JDK 18
         uses: actions/setup-java@v2
@@ -31,8 +36,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/orizuru-${{ github.ref }}.jar
-          tag_name: ${{ github.ref }}
+            target/orizuru-${{ inputs.release }}.jar
+          tag_name: ${{ inputs.release }}
           body: ${{ github.event.release.body }}
           draft: true
           prerelease: false
