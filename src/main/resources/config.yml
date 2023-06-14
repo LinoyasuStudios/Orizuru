@@ -1,3 +1,6 @@
+autoUpdate:
+    # Enable or disable the auto update system.
+    enabled: true
 api:
     # This may be an IP or a domain name.
     url: "https://example.xapi.our-space.xyz/orizuru"

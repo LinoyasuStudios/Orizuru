@@ -72,10 +72,12 @@ class Orizuru : JavaPlugin() {
 		server.getPluginCommand("orizuru")!!.setExecutor(InfoCommand(this))
 		memoryHolder.startCleanTask()
 
-		try {
-			SelfUpdate().onPluginLoad()
-		} catch (e: IOException) {
-			consoleLogWarning(e)
+		if(config.getBoolean("selfUpdate")) {
+			try {
+				SelfUpdate().onPluginLoad()
+			} catch (e: IOException) {
+				consoleLogWarning(e)
+			}
 		}
 	}
 

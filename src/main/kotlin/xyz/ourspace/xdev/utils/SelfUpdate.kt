@@ -13,12 +13,7 @@ class SelfUpdate {
 	private val gitRepo = "GaryCraft/Orizuru"
 	private fun getCurrentVersion(): Version {
 		val v = Orizuru.instance.description.version
-		// Error out if the version is not in the correct format
-		if (!versionRegex.matches(v)) {
-			throw Exception("Version is not in the correct format")
-		}
-		val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
-		return Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+		return Version.fromString(v)
 	}
 
 	private fun getLatestVersion(): Version {
@@ -35,14 +30,9 @@ class SelfUpdate {
 				throw Exception("Failed to fetch latest version from GitHub API")
 			}
 			val v = data.tag_name
-			// Error out if the version is not in the correct format
-			if (!versionRegex.matches(v)) {
-				throw Exception("Version is not in the correct format")
-			}
-			val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
-			version = Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+			version = Version.fromString(v)
 		}
-		if (version == Version(0, 0, 0, "")) {
+		if (version.isEquivalent(Version(0, 0, 0, ""))) {
 			throw Exception("Failed to fetch latest version from GitHub API")
 		}
 		return version
@@ -62,15 +52,10 @@ class SelfUpdate {
 				throw Exception("Failed to fetch latest version from GitHub API")
 			}
 			val v = data.tag_name
-			// Error out if the version is not in the correct format
-			if (!versionRegex.matches(v)) {
-				throw Exception("Version is not in the correct format")
-			}
-			val (major, minor, patch, tag) = versionRegex.find(v)!!.destructured
-			version = Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+			version = Version.fromString(v)
 			downloadUrl = data.assets.firstOrNull { it.name.matches(filenameRegex) }?.browser_download_url ?: ""
 		}
-		if (downloadUrl.isNotEmpty()) {
+		if (downloadUrl.isEmpty()) {
 			throw Exception("Failed to fetch latest version from GitHub API")
 		}
 		return downloadUrl
@@ -112,6 +97,7 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val tag: Stri
 		return "$major.$minor.$patch${if (tag != null) "-$tag" else ""}"
 	}
 
+
 	operator fun compareTo(other: Version): Int {
 		if (major != other.major) {
 			return major - other.major
@@ -132,6 +118,21 @@ data class Version(val major: Int, val minor: Int, val patch: Int, val tag: Stri
 			return tag.compareTo(other.tag)
 		}
 		return 0
+	}
+	fun isEquivalent(other: Version): Boolean {
+		return major == other.major && minor == other.minor && patch == other.patch
+	}
+
+	companion object {
+		fun fromString(s: String): Version {
+			val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+)(?:-(\w+))?""")
+			// Error out if the version is not in the correct format
+			if (!versionRegex.matches(s)) {
+				throw Exception("Version is not in the correct format")
+			}
+			val (major, minor, patch, tag) = versionRegex.find(s)!!.destructured
+			return Version(major.toInt(), minor.toInt(), patch.toInt(), tag)
+		}
 	}
 }
 
