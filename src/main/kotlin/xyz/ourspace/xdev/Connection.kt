@@ -34,7 +34,6 @@ class APIConnection {
 				.header("Authorization" to password)
 				.header("User-Agent" to "Orizuru Plugin")
 				.header("Content-Length" to content.length.toString())
-				.timeout(5000)
 				.body(json, Charsets.UTF_8)
 	}
 
@@ -53,7 +52,6 @@ class APIConnection {
 					.header("Authorization" to password)
 					.header("User-Agent" to "Orizuru Plugin")
 					.header("Content-Length" to json.length.toString())
-					.timeout(5000)
 					.body(json, Charsets.UTF_8)
 					.response()
 			val (data, error) = response.third
@@ -82,7 +80,6 @@ class APIConnection {
 			val response = Fuel.get(url).header("Content-Type" to "application/json").header("Authorization" to password)
 					.header("User-Agent" to "Orizuru Plugin")
 					.header("Content-Length" to json.length.toString())
-					.timeout(5000)
 					.body(json, Charsets.UTF_8)
 					.response()
 			val (data, error) = response.third
