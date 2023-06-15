@@ -1,6 +1,10 @@
 package xyz.ourspace.xdev
 
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Deserializable
+import com.github.kittinunf.fuel.core.ResponseDeserializable
+import com.github.kittinunf.fuel.core.awaitResponseResult
+import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 import xyz.ourspace.xdev.utils.Logger
@@ -37,7 +41,7 @@ class APIConnection {
 				.body(json, Charsets.UTF_8)
 	}
 
-	fun <T> postWithResponse(content_type: String, args: Any, responseClass: Class<T>?): HTTPResponse<T?> {
+	fun <T> postWithResponse(content_type: String, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
@@ -53,7 +57,7 @@ class APIConnection {
 					.header("User-Agent" to "Orizuru Plugin")
 					.header("Content-Length" to json.length.toString())
 					.body(json, Charsets.UTF_8)
-					.response()
+					.awaitStringResponseResult()
 			val (data, error) = response.third
 			if (error != null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
@@ -61,13 +65,13 @@ class APIConnection {
 			if (data == null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
 			} else {
-				httpResponse = HTTPResponse(response.second.statusCode, gson.fromJson(data.toString(Charsets.UTF_8), responseClass))
+				httpResponse = HTTPResponse(response.second.statusCode, deserializeIntoObject(data, responseClass))
 			}
 		}
 		return httpResponse ?: HTTPResponse(0, null)
 	}
 
-	fun <T> get(content_type: String, args: Any, responseClass: Class<T>?): HTTPResponse<T?> {
+	fun <T : Any> get(content_type: String, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
@@ -81,7 +85,7 @@ class APIConnection {
 					.header("User-Agent" to "Orizuru Plugin")
 					.header("Content-Length" to json.length.toString())
 					.body(json, Charsets.UTF_8)
-					.response()
+					.awaitStringResponseResult()
 			val (data, error) = response.third
 			if (error != null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
@@ -89,9 +93,12 @@ class APIConnection {
 			if (data == null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
 			} else {
-				httpResponse = HTTPResponse(response.second.statusCode, gson.fromJson(data.toString(Charsets.UTF_8), responseClass))
+				httpResponse = HTTPResponse(response.second.statusCode,deserializeIntoObject(data, responseClass))
 			}
 		}
 		return httpResponse ?: HTTPResponse(0, null)
+	}
+	private fun <T> deserializeIntoObject(json: String, responseClass: Class<T>): T {
+		return gson.fromJson(json, responseClass)
 	}
 }
