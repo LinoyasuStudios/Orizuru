@@ -2,6 +2,7 @@ package xyz.ourspace.xdev.utils
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.jackson.responseObject
+import kotlinx.coroutines.runBlocking
 import xyz.ourspace.xdev.Orizuru
 import java.io.File
 
@@ -20,8 +21,9 @@ class SelfUpdate {
 		// Fetch GitHub API for latest version
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
 		var version = Version(0, 0, 0, "")
-		Fuel.get(url).responseObject<GitHubAPIRelease> { request, response, result ->
-			val (data, error) = result
+		runBlocking {
+			val response = Fuel.get(url).responseObject<GitHubAPIRelease>()
+			val (data, error) = response.third
 			if (error != null) {
 				throw Exception("Failed to fetch latest version from GitHub API")
 			}
@@ -30,9 +32,9 @@ class SelfUpdate {
 			}
 			val v = data.tag_name
 			version = Version.fromString(v)
-		}
-		if (version.isEquivalent(Version(0, 0, 0, ""))) {
-			throw Exception("Failed to fetch latest version from GitHub API")
+			if (version.isEquivalent(Version(0, 0, 0, ""))) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
 		}
 		return version
 	}
@@ -41,8 +43,9 @@ class SelfUpdate {
 		val url = "https://api.github.com/repos/$gitRepo/releases/latest"
 		var version: Version;
 		var downloadUrl = "";
-		val response = Fuel.get(url).responseObject<GitHubAPIRelease> { request, response, result ->
-			val (data, error) = result
+		runBlocking {
+			val response = Fuel.get(url).responseObject<GitHubAPIRelease>()
+			val (data, error) = response.third
 			if (error != null) {
 				throw Exception("Failed to fetch latest version from GitHub API")
 			}
@@ -52,9 +55,12 @@ class SelfUpdate {
 			val v = data.tag_name
 			version = Version.fromString(v)
 			downloadUrl = data.assets.firstOrNull { it.name.matches(filenameRegex) }?.browser_download_url ?: ""
-		}
-		if (downloadUrl.isEmpty()) {
-			throw Exception("Failed to fetch latest version from GitHub API")
+			if (version.isEquivalent(Version(0, 0, 0, ""))) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
+			if (downloadUrl.isEmpty()) {
+				throw Exception("Failed to fetch latest version from GitHub API")
+			}
 		}
 		return downloadUrl
 	}
@@ -63,12 +69,14 @@ class SelfUpdate {
 		// Get latest version url
 		val url = getLatestVersionUrl()
 		// Download file
-		val response = Fuel.download(url).response()
-		val file = File("plugins/orizuru.jar")
-		file.writeBytes(response.third.get())
+		runBlocking {
+			val response = Fuel.download(url).response()
+			val file = File("plugins/orizuru.jar")
+			file.writeBytes(response.third.get())
+		}
 	}
 
-	fun onPluginLoad() {
+	fun runSelfUpdate() {
 		Logger.consoleLog("Checking for updates...")
 		val currentVersion = getCurrentVersion()
 		val latestVersion = getLatestVersion()

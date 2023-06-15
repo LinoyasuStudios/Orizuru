@@ -1,21 +1,13 @@
 package xyz.ourspace.xdev
 
+import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.URL
-import java.util.stream.Collectors
 import xyz.ourspace.xdev.utils.Logger
-import java.net.HttpURLConnection
 
 
-data class JSONObject(val content:String?, val content_type:String, val args:Any, val id:String)
-data class HTTPResponse<T>(val status:Int, val content: T)
+data class JSONObject(val content: String?, val content_type: String, val args: Any, val id: String)
+data class HTTPResponse<T>(val status: Int, val content: T)
 
 class APIConnection {
 	private var gson: Gson = Gson()
@@ -29,83 +21,52 @@ class APIConnection {
 		this.id = id
 		initialized = true
 	}
+
 	// Send the arguments as a JSON string to the webhook
-	fun post(content:String, content_type:String, args:Any) {
+	fun post(content: String, content_type: String, args: Any) {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return
 		}
-		runBlocking {
-			val obj = JSONObject(content, content_type, args, id)
-			val json = gson.toJson(obj).toString()
-			//consoleLog("Sending webhook: $json")
-			launch {
-				val connection = withContext(Dispatchers.IO) {
-					URL(url).openConnection()
-				} as HttpURLConnection
-			connection.apply {
-				doOutput = true
-				doInput = true
-				requestMethod = "POST"
-				connectTimeout = 5 * 1000;
-				setRequestProperty("User-Agent", "Orizuru Plugin")
-				setRequestProperty("Content-Type", "application/json")
-				setRequestProperty("Content-Length", json.length.toString())
-				setRequestProperty("Authorization", password)
-				val outputStream = outputStream
-				outputStream.write(json.toByteArray())
-				outputStream.flush()
-				outputStream.close()
-				connect()
-			}
-			try {
-				if (connection.responseCode != 200) {
-					throw IOException("HTTP error code: ${connection.responseCode}, Response: ${connection.content}")
-				}
-			} finally {
-				connection.disconnect()
-			}
-			}
-		}
+		val obj = JSONObject(content, content_type, args, id)
+		val json = gson.toJson(obj).toString()
+		Fuel.post(url).header("Content-Type" to "application/json")
+				.header("Authorization" to password)
+				.header("User-Agent" to "Orizuru Plugin")
+				.header("Content-Length" to content.length.toString())
+				.timeout(5000)
+				.body(json, Charsets.UTF_8)
 	}
+
 	fun <T> postWithResponse(content_type: String, args: Any, responseClass: Class<T>?): HTTPResponse<T?> {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
 		}
-		val obj = JSONObject(null,content_type, args, id)
+		val obj = JSONObject(null, content_type, args, id)
 		val json = gson.toJson(obj).toString()
-		var responseBody: String
-		val connection = URL(url).openConnection() as HttpURLConnection
-		connection.requestMethod = "POST"
-		connection.apply {
-			doOutput = true
-			doInput = true
-			connectTimeout = 5 * 1000;
-			setRequestProperty("User-Agent", "Orizuru Plugin")
-			setRequestProperty("Content-Type", "application/json")
-			setRequestProperty("Content-Length", json.length.toString())
-			setRequestProperty("Authorization", password)
-			val outputStream = outputStream
-			outputStream.write(json.toByteArray())
-			outputStream.flush()
-			outputStream.close()
-			val br:BufferedReader = if (connection.responseCode in 100..399) {
-				BufferedReader(InputStreamReader(connection.inputStream))
+		var httpResponse: HTTPResponse<T?>? = null
+		runBlocking {
+
+			val response = Fuel.post(url)
+					.header("Content-Type" to "application/json")
+					.header("Authorization" to password)
+					.header("User-Agent" to "Orizuru Plugin")
+					.header("Content-Length" to json.length.toString())
+					.timeout(5000)
+					.body(json, Charsets.UTF_8)
+					.response()
+			val (data, error) = response.third
+			if (error != null) {
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+			}
+			if (data == null) {
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
 			} else {
-				BufferedReader(InputStreamReader(connection.errorStream))
+				httpResponse = HTTPResponse(response.second.statusCode, gson.fromJson(data.toString(Charsets.UTF_8), responseClass))
 			}
-			responseBody = br.lines().collect(Collectors.joining())
-			connect()
 		}
-		try {
-			if (connection.responseCode != 200) {
-				return HTTPResponse(connection.responseCode, gson.fromJson(responseBody, responseClass))
-			}
-		} finally {
-			connection.disconnect()
-		}
-		return HTTPResponse(connection.responseCode, gson.fromJson(responseBody, responseClass))
+		return httpResponse ?: HTTPResponse(0, null)
 	}
 
 	fun <T> get(content_type: String, args: Any, responseClass: Class<T>?): HTTPResponse<T?> {
@@ -113,37 +74,27 @@ class APIConnection {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
 		}
-		val obj = JSONObject(null,content_type, args, id)
+		val obj = JSONObject(null, content_type, args, id)
 		val json = gson.toJson(obj).toString()
-		var responseBody: String
-		val connection = URL(url).openConnection() as HttpURLConnection
-		connection.requestMethod = "GET"
-		connection.apply {
-			doInput = true
-			connectTimeout = 5 * 1000;
-			setRequestProperty("User-Agent", "Orizuru Plugin")
-			setRequestProperty("Content-Type", "application/json")
-			setRequestProperty("Content-Length", json.length.toString())
-			setRequestProperty("Authorization", password)
-			val outputStream = outputStream
-			outputStream.write(json.toByteArray())
-			outputStream.flush()
-			outputStream.close()
-			val br:BufferedReader = if (connection.responseCode in 100..399) {
-				BufferedReader(InputStreamReader(connection.inputStream))
+		var httpResponse: HTTPResponse<T?>? = null
+
+		runBlocking {
+			val response = Fuel.get(url).header("Content-Type" to "application/json").header("Authorization" to password)
+					.header("User-Agent" to "Orizuru Plugin")
+					.header("Content-Length" to json.length.toString())
+					.timeout(5000)
+					.body(json, Charsets.UTF_8)
+					.response()
+			val (data, error) = response.third
+			if (error != null) {
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+			}
+			if (data == null) {
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
 			} else {
-				BufferedReader(InputStreamReader(connection.errorStream))
+				httpResponse = HTTPResponse(response.second.statusCode, gson.fromJson(data.toString(Charsets.UTF_8), responseClass))
 			}
-			responseBody = br.lines().collect(Collectors.joining())
-			connect()
 		}
-		try {
-			if (connection.responseCode != 200) {
-				return HTTPResponse(connection.responseCode, gson.fromJson(responseBody, responseClass))
-			}
-		} finally {
-			connection.disconnect()
-		}
-		return HTTPResponse(connection.responseCode, gson.fromJson(responseBody, responseClass))
+		return httpResponse ?: HTTPResponse(0, null)
 	}
 }
