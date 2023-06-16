@@ -3,6 +3,7 @@ package xyz.ourspace.xdev.utils
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.jackson.responseObject
 import kotlinx.coroutines.runBlocking
+import org.bukkit.Bukkit
 import xyz.ourspace.xdev.Orizuru
 import java.io.File
 
@@ -65,15 +66,17 @@ class SelfUpdate {
 		return downloadUrl
 	}
 
-	private fun downloadUpdate() {
+	private fun downloadUpdateDeferred() {
 		// Get latest version url
 		val url = getLatestVersionUrl()
 		// Download file
-		runBlocking {
+		Bukkit.getScheduler().runTaskLaterAsynchronously(Orizuru.instance, Runnable {
+			Logger.consoleLog("Downloading update...")
 			val response = Fuel.download(url).response()
 			val file = File("plugins/update/orizuru.jar")
 			file.writeBytes(response.third.get())
-		}
+			Logger.consoleLog("Update downloaded, please restart the server to apply the update")
+		}, 1L)
 	}
 
 	fun runSelfUpdate() {
@@ -86,8 +89,7 @@ class SelfUpdate {
 				|Latest version: $latestVersion
 				|""".trimMargin())
 			// Download update
-			downloadUpdate()
-			Logger.consoleLog("Update downloaded, please restart the server to apply the update")
+			downloadUpdateDeferred()
 		} else {
 			Logger.consoleLog("""
 				|No updates found

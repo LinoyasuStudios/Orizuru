@@ -14,9 +14,9 @@ import xyz.ourspace.xdev.types.UserData
 
 
 private val authStringMap = mutableMapOf<String, String>(
-		"playerName" to "templateName",
-		"playerUsername" to "templateUsername",
-		"playerIdentifier" to "templateIdentifier"
+		"playerName" to "noname",
+		"playerUsername" to "nousername",
+		"playerIdentifier" to "noidentifier"
 )
 
 class AuthUtility(private val plugin: Orizuru) {
@@ -84,7 +84,7 @@ class AuthUtility(private val plugin: Orizuru) {
 				content.body.name = player.name
 			}
 			plugin.memoryHolder.set(player.uniqueId.toString(),
-					UserData(player.name?:"Unknown", content.body.player.uuid, content.body.player.name!!),
+					UserData(player.name?:"Unknown", content.body.identifier, content.body.name!!),
 					20000L
 			)
 			return Pair(true, null)

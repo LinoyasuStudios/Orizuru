@@ -57,10 +57,10 @@ class APIConnection {
 					.awaitStringResponseResult()
 			val (data, error) = response.third
 			if (error != null) {
-				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: ${getImportantErrorInfo(error)}")
 			}
 			if (data == null) {
-				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: Data was null")
 				httpResponse = HTTPResponse(response.second.statusCode, null)
 				return@runBlocking
 			}
@@ -86,10 +86,10 @@ class APIConnection {
 					.awaitStringResponseResult()
 			val (data, error) = response.third
 			if (error != null) {
-				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: ${getImportantErrorInfo(error)}")
 			}
 			if (data == null) {
-				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
+				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: Data was null")
 				httpResponse = HTTPResponse(response.second.statusCode, null)
 				return@runBlocking
 			}
@@ -101,5 +101,8 @@ class APIConnection {
 
 	private fun <T> deserializeIntoObject(json: String, responseClass: Class<T>): T {
 		return gson.fromJson(json, responseClass)
+	}
+	private fun getImportantErrorInfo(error: Exception): String {
+		return error.message ?: error.toString()
 	}
 }
