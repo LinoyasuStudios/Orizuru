@@ -20,6 +20,10 @@ class Orizuru : JavaPlugin() {
 	val memoryHolder = MemoryHolder(instance)
 
 	override fun onEnable() {
+		if(SelfUpdate.isUpdateDownloaded()) {
+			consoleLogWarning("An update has been downloaded, auto-install is not yet implemented, please move the file manually from the plugins/update folder to the plugins folder")
+			// SelfUpdate.moveUpdatetoSelf()
+		}
 		// Plugin startup logic
 		//Check config.yml if exists, if not create it
 		try {

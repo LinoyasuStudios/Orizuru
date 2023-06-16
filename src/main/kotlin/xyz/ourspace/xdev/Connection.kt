@@ -1,9 +1,6 @@
 package xyz.ourspace.xdev
 
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.Deserializable
-import com.github.kittinunf.fuel.core.ResponseDeserializable
-import com.github.kittinunf.fuel.core.awaitResponseResult
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
@@ -64,9 +61,10 @@ class APIConnection {
 			}
 			if (data == null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
-			} else {
-				httpResponse = HTTPResponse(response.second.statusCode, deserializeIntoObject(data, responseClass))
+				httpResponse = HTTPResponse(response.second.statusCode, null)
+				return@runBlocking
 			}
+			httpResponse = HTTPResponse(response.second.statusCode, deserializeIntoObject(data, responseClass))
 		}
 		return httpResponse ?: HTTPResponse(0, null)
 	}
@@ -92,12 +90,15 @@ class APIConnection {
 			}
 			if (data == null) {
 				Logger.consoleLogWarning("Failed to send webhook of ContentType $content_type: $error")
-			} else {
-				httpResponse = HTTPResponse(response.second.statusCode,deserializeIntoObject(data, responseClass))
+				httpResponse = HTTPResponse(response.second.statusCode, null)
+				return@runBlocking
 			}
+			httpResponse = HTTPResponse(response.second.statusCode, deserializeIntoObject(data, responseClass))
+
 		}
 		return httpResponse ?: HTTPResponse(0, null)
 	}
+
 	private fun <T> deserializeIntoObject(json: String, responseClass: Class<T>): T {
 		return gson.fromJson(json, responseClass)
 	}

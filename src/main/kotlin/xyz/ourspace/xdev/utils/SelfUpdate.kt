@@ -71,7 +71,7 @@ class SelfUpdate {
 		// Download file
 		runBlocking {
 			val response = Fuel.download(url).response()
-			val file = File("plugins/orizuru.jar")
+			val file = File("plugins/update/orizuru.jar")
 			file.writeBytes(response.third.get())
 		}
 	}
@@ -94,6 +94,18 @@ class SelfUpdate {
 				|Current version: $currentVersion
 				|Latest version: $latestVersion
 			""".trimIndent())
+		}
+	}
+	companion object {
+		fun isUpdateDownloaded(): Boolean {
+			val file = File("plugins/update/orizuru.jar")
+			return file.exists()
+		}
+		fun moveUpdatetoSelf() {
+			val file = File("plugins/update/orizuru.jar")
+			val self = File("plugins/orizuru.jar")
+			file.copyTo(self, true)
+			file.delete()
 		}
 	}
 }
