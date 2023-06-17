@@ -35,7 +35,7 @@ class APIConnection {
 				.header("Authorization" to password)
 				.header("User-Agent" to "Orizuru Plugin")
 				.header("Content-Length" to content.length.toString())
-				.body(json, Charsets.UTF_8)
+				.body(json, Charsets.UTF_8).response()
 	}
 
 	fun <T> postWithResponse(content_type: String, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
