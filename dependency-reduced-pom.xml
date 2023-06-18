@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>xyz.our-space.xdev</groupId>
   <artifactId>orizuru</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
     <resources>

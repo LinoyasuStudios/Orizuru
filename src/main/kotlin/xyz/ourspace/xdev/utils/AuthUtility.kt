@@ -5,6 +5,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Bukkit.getServer
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
+import xyz.ourspace.xdev.OrizContentType
 import xyz.ourspace.xdev.Orizuru
 import xyz.ourspace.xdev.types.AuthArguments
 import xyz.ourspace.xdev.types.AuthContent
@@ -53,7 +54,7 @@ class AuthUtility(private val plugin: Orizuru) {
 				)
 		)
 		try {
-			val res = this.connection.postWithResponse("Auth", args, AuthContent::class.java)
+			val res = this.connection.postWithResponse(OrizContentType.AUTH, args, AuthContent::class.java)
 			if (res.status != 200) {
 				return Pair(false, "Server returned ${res.status}")
 			}

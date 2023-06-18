@@ -7,10 +7,15 @@ class AuthContent(
 		val body: AuthBody?,
 		val code: String?
 )
-class AuthBody (
+
+class AuthBody(
 		val player: PlayerInfo?,
 		var name: String?,
-		val identifier : String?
+		val identifier: String?
 )
 
-class UserData(val username :String, val identifier: String, val name: String) : GenericData()
+class UserData(
+		val username: String,
+		val identifier: String,
+		val name: String
+) : GenericData()

@@ -4,10 +4,21 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
+import org.bukkit.Bukkit
 import xyz.ourspace.xdev.utils.Logger
 
-
-data class JSONObject(val content: String?, val content_type: String, val args: Any, val id: String)
+enum class OrizContentType(val value: String) {
+	AUTH("Auth"),
+	PLAYERJOIN("PlayerJoin"),
+	PLAYERLEAVE("PlayerLeave"),
+	PLAYERCHAT("PlayerChat"),
+	PLAYERDEATH("PlayerDeath"),
+	PLAYERCOMMAND("PlayerCommand"),
+	PLAYERADVANCEMENT("PlayerAdvancement"),
+	LOG("Log"),
+	PERFORMANCE("Performance"),
+}
+data class JSONObject(val content: String?, val content_type: OrizContentType, val args: Any, val id: String)
 data class HTTPResponse<T>(val status: Int, val content: T)
 
 class APIConnection {
@@ -24,7 +35,7 @@ class APIConnection {
 	}
 
 	// Send the arguments as a JSON string to the webhook
-	fun post(content: String, content_type: String, args: Any) {
+	fun post(content: String, content_type: OrizContentType, args: Any) {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return
@@ -37,8 +48,18 @@ class APIConnection {
 				.header("Content-Length" to content.length.toString())
 				.body(json, Charsets.UTF_8).response()
 	}
+	fun postAsync(content: String, content_type: OrizContentType, args: Any) {
+		if (!initialized) {
+			Logger.consoleLogWarning("APIConnection not initialized")
+			return
+		}
+		Bukkit.getScheduler().runTaskAsynchronously(
+				Orizuru.instance,
+				Runnable { post(content, content_type, args) }
+		)
+	}
 
-	fun <T> postWithResponse(content_type: String, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
+	fun <T> postWithResponse(content_type: OrizContentType, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
@@ -69,7 +90,7 @@ class APIConnection {
 		return httpResponse ?: HTTPResponse(0, null)
 	}
 
-	fun <T : Any> get(content_type: String, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
+	fun <T : Any> get(content_type: OrizContentType, args: Any, responseClass: Class<T>): HTTPResponse<T?> {
 		if (!initialized) {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)

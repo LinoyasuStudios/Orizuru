@@ -1,6 +1,12 @@
 selfUpdate:
     # Enable or disable the auto update system.
     enabled: true
+
+metrics:
+    # Enable or disable the performance reporting system.
+    enabled: true
+    # The interval in which the metrics are sent to the server. (in minutes)
+    interval: 10
 api:
     # This may be an IP or a domain name.
     url: "https://example.xapi.our-space.xyz/orizuru"

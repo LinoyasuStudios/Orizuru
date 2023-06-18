@@ -70,13 +70,13 @@ class SelfUpdate {
 		// Get latest version url
 		val url = getLatestVersionUrl()
 		// Download file
-		Bukkit.getScheduler().runTaskLaterAsynchronously(Orizuru.instance, Runnable {
+		Bukkit.getScheduler().runTaskAsynchronously(Orizuru.instance, Runnable {
 			Logger.consoleLog("Downloading update...")
 			val response = Fuel.download(url).response()
 			val file = File("plugins/update/orizuru.jar")
 			file.writeBytes(response.third.get())
 			Logger.consoleLog("Update downloaded, please restart the server to apply the update")
-		}, 1L)
+		})
 	}
 
 	fun runSelfUpdate() {

@@ -57,26 +57,26 @@ class Orizuru : JavaPlugin() {
 						server.port,
 						description.version,
 				)
-				connection.post("Server Online", "Log", serverInfo)
+				connection.post("Server Online", OrizContentType.LOG, serverInfo)
 			} catch (e: IOException) {
 				consoleLogWarning(e)
 			}
 		})
-
-
-
+		// Register commands
 		server.getPluginCommand("orizuru")!!.setExecutor(InfoCommand(this))
+		// Start the cleaning task on the memory holder
 		memoryHolder.startCleanTask()
-
+		// Start the performance worker
+		PerformanceWorker.start()
+		// Start the self update worker
 		if (config.getBoolean("selfUpdate.enabled")) {
-			Bukkit.getScheduler().runTaskTimer(this, Runnable {
+			Bukkit.getScheduler().runTaskAsynchronously(this, Runnable {
 				try {
 					SelfUpdate().runSelfUpdate()
 				} catch (e: IOException) {
 					consoleLogWarning(e)
 				}
-				// Every 20 minutes
-			}, 0, 1000 * 60 * 20)
+			})
 		}
 	}
 
@@ -93,7 +93,7 @@ class Orizuru : JavaPlugin() {
 				description.version,
 		)
 		try {
-			connection.post("Server Shutdown", "Log", serverInfo)
+			connection.post("Server Shutdown", OrizContentType.LOG, serverInfo)
 		} catch (e: IOException) {
 			consoleLogWarning("Failed to send shutdown webhook")
 		}

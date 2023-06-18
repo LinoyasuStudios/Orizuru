@@ -7,11 +7,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerAdvancementDoneEvent
+import org.bukkit.event.player.PlayerCommandSendEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import xyz.ourspace.xdev.types.EventInfo
-import xyz.ourspace.xdev.types.PlayerInfo
-import xyz.ourspace.xdev.types.ServerPlayerStats
+import xyz.ourspace.xdev.types.*
 import xyz.ourspace.xdev.utils.AuthUtility
 import xyz.ourspace.xdev.utils.Logger.consoleLog
 import xyz.ourspace.xdev.utils.Logger.consoleLogWarning
@@ -26,6 +26,10 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 		val hasJoined = player.hasPlayedBefore()
 		if (!hasJoined) {
 			consoleLogWarning("Player ${player.name} has not joined before, skipping authentication")
+			Bukkit.getScheduler().runTaskLater(Orizuru.instance, Runnable {
+				// Kick player 5 Seconds after they join
+				Bukkit.getPlayer(player.uniqueId)?.kickPlayer("Please rejoin to authenticate")
+			}, 100L)
 			return
 		}
 		val authenticated = auth.verify(player, event.address.hostAddress)
@@ -36,7 +40,7 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	fun onPlayerJoin(event: PlayerJoinEvent) {
 		val player = event.player
 		auth.welcome(player)
@@ -49,14 +53,14 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 				EventInfo(location, playerInfo, "join")
 		)
 		runCatching {
-			apiConnection.post("Player ${player.name} Joined", "PlayerJoin", obj)
+			apiConnection.postAsync("Player ${player.name} Joined", OrizContentType.PLAYERJOIN, obj)
 		}.onFailure {
 			consoleLogWarning("Failed to send PlayerJoin event to API")
 		}
 
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	fun onPlayerQuit(event: PlayerQuitEvent) {
 		val playerCount = Bukkit.getOnlinePlayers().size - 1
 		val player = event.player
@@ -69,43 +73,86 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 				EventInfo(location, playerInfo, "quit")
 		)
 		runCatching {
-			apiConnection.post("Player ${player.name} Left", "PlayerLeave", obj)
+			apiConnection.postAsync("Player ${player.name} Left", OrizContentType.PLAYERLEAVE, obj)
 		}.onFailure {
 			consoleLogWarning("Failed to post PlayerLeave event")
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	fun onPlayerChat(event: AsyncPlayerChatEvent) {
-		var eventMsg = event.message
+		val eventMsg = event.message
 		val player = event.player
-		eventMsg = eventMsg.replace("@everyone".toRegex(), "``@everyone``").replace("@here".toRegex(), "``@here``")
 		val location = """${player.location.x}, ${player.location.y}, ${player.location.z}"""
 		val playerInfo = PlayerInfo(player.name, player.uniqueId.toString(), null)
-		val obj = EventArguments(
+		val obj = ChatArguments(
 				playerInfo,
-				null,
-				EventInfo(location, playerInfo, "chat")
+				EventInfo(location, playerInfo, "chat"),
+				eventMsg
 		)
 		runCatching {
-			apiConnection.post(eventMsg, "Chat", obj)
+			apiConnection.postAsync(eventMsg, OrizContentType.PLAYERCHAT, obj)
 		}.onFailure {
 			consoleLogWarning("Failed to send chat message to API")
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.MONITOR)
 	fun onPlayerDeath(event: PlayerDeathEvent) {
 		val player = event.entity
 
 		val location = """${player.location.x}, ${player.location.y}, ${player.location.z}"""
 		val playerInfo = PlayerInfo(player.name, player.uniqueId.toString(), null)
-		val obj = EventArguments(
+		val obj = DeathArguments(
 				playerInfo,
-				null,
-				EventInfo(location, playerInfo, "death")
+				EventInfo(location, playerInfo, "death"),
+				event.deathMessage ?: "Player ${player.name} died"
 		)
 		val msg = event.deathMessage ?: "Player ${player.name} died"
-		apiConnection.post(msg, "PlayerDeath", obj)
+		runCatching {
+			apiConnection.postAsync(msg, OrizContentType.PLAYERDEATH, obj)
+		}.onFailure {
+			consoleLogWarning("Failed to send PlayerDeath event to API")
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	fun onPlayerCommand(eventCommandSendEvent: PlayerCommandSendEvent){
+		val player = eventCommandSendEvent.player
+		val location = """${player.location.x}, ${player.location.y}, ${player.location.z}"""
+		val playerInfo = PlayerInfo(player.name, player.uniqueId.toString(), null)
+		val commandName = eventCommandSendEvent.commands.first()
+		val commandArgs = eventCommandSendEvent.commands.drop(1).toTypedArray()
+		val obj = CommandArguments(
+				playerInfo,
+				EventInfo(location, playerInfo, "command"),
+				commandName,
+				commandArgs,
+		)
+		runCatching {
+			apiConnection.postAsync(eventCommandSendEvent.commands.toString(), OrizContentType.PLAYERCOMMAND, obj)
+		}.onFailure {
+			consoleLogWarning("Failed to send PlayerCommand event to API")
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	fun onPlayerAchievement(event: PlayerAdvancementDoneEvent) {
+		val player = event.player
+		val location = """${player.location.x}, ${player.location.y}, ${player.location.z}"""
+		val playerInfo = PlayerInfo(player.name, player.uniqueId.toString(), null)
+		val advancementName = event.advancement.toString()
+		val criteria = event.advancement.criteria.toString()
+		val obj = AdvancementArguments(
+				playerInfo,
+				EventInfo(location, playerInfo, "achievement"),
+				advancementName,
+				criteria,
+		)
+		runCatching {
+			apiConnection.postAsync(event.advancement.toString(), OrizContentType.PLAYERADVANCEMENT, obj)
+		}.onFailure {
+			consoleLogWarning("Failed to send PlayerAchievement event to API")
+		}
 	}
 }
