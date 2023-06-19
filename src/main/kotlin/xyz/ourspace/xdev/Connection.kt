@@ -18,7 +18,7 @@ enum class OrizContentType(val value: String) {
 	LOG("Log"),
 	PERFORMANCE("Performance"),
 }
-data class JSONObject(val content: String?, val content_type: OrizContentType, val args: Any, val id: String)
+data class JSONObject(val content: String?, val content_type: String, val args: Any, val id: String)
 data class HTTPResponse<T>(val status: Int, val content: T)
 
 class APIConnection {
@@ -40,7 +40,7 @@ class APIConnection {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return
 		}
-		val obj = JSONObject(content, content_type, args, id)
+		val obj = JSONObject(content, content_type.value, args, id)
 		val json = gson.toJson(obj).toString()
 		Fuel.post(url).header("Content-Type" to "application/json")
 				.header("Authorization" to password)
@@ -64,7 +64,7 @@ class APIConnection {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
 		}
-		val obj = JSONObject(null, content_type, args, id)
+		val obj = JSONObject(null, content_type.value, args, id)
 		val json = gson.toJson(obj).toString()
 		var httpResponse: HTTPResponse<T?>? = null
 		runBlocking {
@@ -95,7 +95,7 @@ class APIConnection {
 			Logger.consoleLogWarning("APIConnection not initialized")
 			return HTTPResponse(0, null)
 		}
-		val obj = JSONObject(null, content_type, args, id)
+		val obj = JSONObject(null, content_type.value, args, id)
 		val json = gson.toJson(obj).toString()
 		var httpResponse: HTTPResponse<T?>? = null
 

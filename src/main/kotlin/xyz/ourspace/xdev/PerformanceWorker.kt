@@ -27,7 +27,7 @@ class PerformanceWorker {
 						cpuUsage.toLong()
 				)
 				Orizuru.instance.connection.postAsync(
-						"Performance Metrics for last 10 seconds",
+						"Performance Metrics for the last $intervalMinutes minutes",
 						OrizContentType.PERFORMANCE,
 						data
 				)

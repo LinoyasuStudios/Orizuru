@@ -5,12 +5,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent
-import org.bukkit.event.player.PlayerAdvancementDoneEvent
-import org.bukkit.event.player.PlayerCommandSendEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.*
 import xyz.ourspace.xdev.types.*
 import xyz.ourspace.xdev.utils.AuthUtility
 import xyz.ourspace.xdev.utils.Logger.consoleLog
@@ -117,12 +112,13 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	fun onPlayerCommand(eventCommandSendEvent: PlayerCommandSendEvent){
-		val player = eventCommandSendEvent.player
+	fun onPlayerCommand(event: AsyncPlayerChatEvent){
+		if (!event.message.startsWith("/")) return
+		val player = event.player
 		val location = """${player.location.x}, ${player.location.y}, ${player.location.z}"""
 		val playerInfo = PlayerInfo(player.name, player.uniqueId.toString(), null)
-		val commandName = eventCommandSendEvent.commands.first()
-		val commandArgs = eventCommandSendEvent.commands.drop(1).toTypedArray()
+		val commandName = event.message.split(" ")[0].replace("/", "")
+		val commandArgs = event.message.split(" ").drop(1).toTypedArray()
 		val obj = CommandArguments(
 				playerInfo,
 				EventInfo(location, playerInfo, "command"),
@@ -130,7 +126,7 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 				commandArgs,
 		)
 		runCatching {
-			apiConnection.postAsync(eventCommandSendEvent.commands.toString(), OrizContentType.PLAYERCOMMAND, obj)
+			apiConnection.postAsync(event.message, OrizContentType.PLAYERCOMMAND, obj)
 		}.onFailure {
 			consoleLogWarning("Failed to send PlayerCommand event to API")
 		}
