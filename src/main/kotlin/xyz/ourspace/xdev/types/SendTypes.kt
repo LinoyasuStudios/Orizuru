@@ -28,12 +28,13 @@ data class ServerPlayerStats(
 )
 
 data class PerformanceData(
+		val players: ServerPlayerStats,
 		val tps: DoubleArray,
 		val availableMemory: Long,
 		val maxMemory: Long,
 		val usedMemory: Long,
 		val memPercent: Long,
-		val cpuPercent: Long,
+		val cpuPercent: Double,
 )
 
 data class AuthArguments(val player: PlayerInfo)

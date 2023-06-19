@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>xyz.our-space.xdev</groupId>
   <artifactId>orizuru</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
     <resources>
@@ -104,6 +104,10 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -144,6 +148,12 @@
       <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
       <version>1.7.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>me.lucko</groupId>
+      <artifactId>spark-api</artifactId>
+      <version>0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

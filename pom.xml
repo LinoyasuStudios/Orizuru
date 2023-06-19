@@ -6,7 +6,7 @@
 
     <groupId>xyz.our-space.xdev</groupId>
     <artifactId>orizuru</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <properties>
         <kotlin.version>1.6.10</kotlin.version>
         <java.version>18</java.version>
@@ -36,6 +36,12 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+
+        <!-- This adds the Sonatype Maven repository to the build (for spark)-->
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
 
     </repositories>
@@ -77,10 +83,19 @@
             <version>1.6.4</version>
         </dependency>
 
+        <!-- Vault API for permissions -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spark API for performance profiling -->
+        <dependency>
+            <groupId>me.lucko</groupId>
+            <artifactId>spark-api</artifactId>
+            <version>0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -97,6 +112,8 @@
             <artifactId>fuel-coroutines</artifactId>
             <version>2.3.1</version>
         </dependency>
+
+
 
 
     </dependencies>
