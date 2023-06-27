@@ -34,7 +34,7 @@ class PerformanceWorker {
 				val maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024
 				val usedMemory = maxMemory - memory
 				val memPercent = usedMemory * 100 / maxMemory
-				val cpuUsage: Double = cpuUsageI.poll(StatisticWindow.CpuUsage.MINUTES_1)
+				val cpuUsage: Double = cpuUsageI.poll(StatisticWindow.CpuUsage.MINUTES_1) * 100
 				val playerStats = ServerPlayerStats(
 						Bukkit.getOnlinePlayers().size,
 						Bukkit.getMaxPlayers()
@@ -53,7 +53,7 @@ class PerformanceWorker {
 						OrizContentType.PERFORMANCE,
 						data
 				)
-				//Logger.consoleLog("Posted performance metrics")
+				// Logger.consoleLog("Posted performance metrics")
 				// Wait 20 seconds before first run, then run every intervalMinutes minutes
 			}, 20 * 20, intervalMinutes * 20 * 60)
 
