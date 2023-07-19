@@ -3,8 +3,8 @@ description: Web-based communication plugin for Minecraft servers using events.
 version: 1.1.3
 author: GaryCraft
 main: xyz.ourspace.xdev.Orizuru
-api-version: "1.20"
-depend: [Vault, spark]
+api-version: "1.12.2"
+depend: [Vault]
 commands:
   orizuru:
     description: Gets Info about the plugin
