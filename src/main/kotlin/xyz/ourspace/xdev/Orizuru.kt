@@ -67,7 +67,7 @@ class Orizuru : JavaPlugin() {
 		// Start the cleaning task on the memory holder
 		memoryHolder.startCleanTask()
 		// Start the performance worker
-		PerformanceWorker.start()
+		// PerformanceWorker.start()
 		// Start the self update worker
 		if (config.getBoolean("selfUpdate.enabled")) {
 			Bukkit.getScheduler().runTaskAsynchronously(this, Runnable {

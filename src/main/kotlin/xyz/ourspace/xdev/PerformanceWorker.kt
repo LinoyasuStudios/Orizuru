@@ -1,10 +1,10 @@
 package xyz.ourspace.xdev
 
-import me.lucko.spark.api.Spark
+/*import me.lucko.spark.api.Spark
 import me.lucko.spark.api.SparkProvider
 import me.lucko.spark.api.statistic.StatisticWindow
 import me.lucko.spark.api.statistic.StatisticWindow.TicksPerSecond
-import me.lucko.spark.api.statistic.types.DoubleStatistic
+import me.lucko.spark.api.statistic.types.DoubleStatistic*/
 import org.bukkit.Bukkit
 import xyz.ourspace.xdev.types.PerformanceData
 import xyz.ourspace.xdev.types.ServerPlayerStats
@@ -13,7 +13,8 @@ import xyz.ourspace.xdev.utils.Logger
 
 class PerformanceWorker {
 	companion object {
-		fun start() {
+		/*fun start() {
+
 			var spark: Spark? = null
 			runCatching {
 				spark = SparkProvider.get()
@@ -57,6 +58,6 @@ class PerformanceWorker {
 				// Wait 20 seconds before first run, then run every intervalMinutes minutes
 			}, 20 * 20, intervalMinutes * 20 * 60)
 
-		}
+		}*/
 	}
 }

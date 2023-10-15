@@ -21,10 +21,10 @@ class EventListeners(private val apiConnection: APIConnection, private val auth:
 		val hasJoined = player.hasPlayedBefore()
 		if (!hasJoined) {
 			consoleLogWarning("Player ${player.name} has not joined before, skipping authentication")
-			Bukkit.getScheduler().runTaskLater(Orizuru.instance, Runnable {
+			/*Bukkit.getScheduler().runTaskLater(Orizuru.instance, Runnable {
 				// Kick player 5 Seconds after they join
 				Bukkit.getPlayer(player.uniqueId)?.kickPlayer("Please rejoin to authenticate")
-			}, 100L)
+			}, 100L)*/
 			return
 		}
 		val authenticated = auth.verify(player, event.address.hostAddress)
