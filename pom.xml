@@ -6,10 +6,10 @@
 
     <groupId>xyz.our-space.xdev</groupId>
     <artifactId>orizuru</artifactId>
-    <version>1.1.3p</version>
+    <version>1.1.3d16</version>
     <properties>
         <kotlin.version>1.6.10</kotlin.version>
-        <java.version>18</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
